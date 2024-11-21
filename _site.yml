@@ -1,0 +1,16 @@
+name: "my-website"
+navbar:
+  title: ""
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "About"
+      href: about.html
+    - text: "Hepatities C"
+      href: hepatities.html
+    - text: "Hepatities B & Hepatities C"
+      href: hepatitiesCB.html
+output:
+  html_document:
+    theme: flatly
+    highlight: textmate
