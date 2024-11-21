@@ -1,30 +1,277 @@
 ---
-title: "Untitled"
-author: "Hanan Alahmadi"
-date: "2024-11-21"
-output: html_document
+title: "Hepatities C & Hepatities B in Saudi Arbaia"
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+```{r, echo=FALSE, warning=FALSE, message=FALSE, comment=NA}
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r cars}
-summary(cars)
+
+
+
+library(sf)
+library(SpatialEpi)
+library(sp)
+library(raster)
+library(readxl)
+library(mapview)
+library(dplyr)
+library(ggplot2)
+library(patchwork)
+library(viridis)
+library(openair)
+library(terra)
+library(leaflet)
+library(tigris)
+library(pander)
+library(spdep)
+library(INLA)
+library(gridExtra)
+library(rgeoboundaries)
+library(rnaturalearth)
+
+#######################
+# map of Saudi Arabia
+#######################
+
+
+map <- ne_states(country = "Saudi Arabia", returnclass = "sf")
+map <- st_set_crs(map, 4326) 
+map <- map[order(map$name),]
+maplatlong <- st_transform(map, 4326)
+
+# Change the names to match the data of hepatites names
+
+map$name[1]="Asir"
+map$name[2]="Al Bahah"
+map$name[3]="Northern Borders"
+map$name[4]="Al Jawf"
+map$name[5]="Madinah"
+map$name[6]="Qassim"
+map$name[7]="Riyadh"
+map$name[8]="Eastern Province"
+map$name[9]="Hail"
+map$name[10]= "Jazan"
+map$name[11]="Makkah"
+map$name[12]="Najran"
+map$name[13]="Tabuk"
+
+
+
+setwd("~/Desktop/files/hepatite/website/hepatitis")
+
+####################
+# Hepatitis Data
+####################
+data <- read.csv("~/Desktop/files/hepatite/website/hepatitis/data/hepatites.csv", header = T)
+
+
+
+
+###########################################
+# Merge the data of hepatitis with the map
+###########################################
+
+
+
+
+
+map <- merge(map, data, by.x = "name", by.y = "regions")
+
+
+
+###################################
+# Plot the cases of Hepatitis Data
+###################################
+
+
+#######################
+# Plot Hepatitis C
+#######################
+
+
+theme_set(theme_minimal())
+boundaryregion <- st_union(map)
+
+pc <- ggplot(data = boundaryregion) +
+  geom_sf() +
+  geom_sf(data = map, aes(fill = HepatitisC)) +
+  scale_fill_viridis_c(option = "viridis") +  
+  labs(fill = "Hepatitis C")
+
+
+
+
+#######################
+# Plot Hepatitis B
+#######################
+
+
+theme_set(theme_minimal())
+boundaryregion <- st_union(map)
+
+pb <- ggplot(data = boundaryregion) +
+  geom_sf() +
+  geom_sf(data = map, aes(fill = HepatitisB)) +
+  scale_fill_viridis_c(option = "viridis") +  
+  labs(fill = "Hepatitis B")
+
+
+
+pc + pb 
+
+
+
+
+
+################### 
+# Expected
+##################
+
+
+map$E.c <- expected(
+  population = map$population2019 ,
+  cases = map$HepatitisC, n.strata = 1
+)
+
+
+
+map$E.b <- expected(
+  population = map$population2019 ,
+  cases = map$HepatitisB, n.strata = 1
+)
+
+
+
+##################
+# SIR
+##################
+
+map$SIR.c <- map$HepatitisC/map$E.c
+
+map$SIR.b <- map$HepatitisB/map$E.b
+
+
+
+# Set the color scale limits based on the min and max SIR values across both datasets
+common_limits <- range(c(map$SIR.c, map$SIR.b), na.rm = TRUE)
+
+# Plot sc with common color limits
+sc <- ggplot(data = boundaryregion) +
+  geom_sf() +
+  geom_sf(data = map, aes(fill = SIR.c)) +
+  scale_fill_viridis_c(option = "viridis", limits = common_limits) +  
+  labs(fill = "SIR (C)") +
+  theme_minimal()
+
+# Plot sb with common color limits
+sb <- ggplot(data = boundaryregion) +
+  geom_sf() +
+  geom_sf(data = map, aes(fill = SIR.b)) +
+  scale_fill_viridis_c(option = "viridis", limits = common_limits) +  
+  labs(fill = "SIR (B)") +
+  theme_minimal()
+
+# Display both plots side by side using patchwork or cowplot
+library(patchwork)
+sc + sb
+
+
+
+###################################################
+# Joint Model between Hepatitis C and Hepatitis B
+###################################################
+
+nb <- poly2nb(map)
+nb2INLA("map.adj", nb)
+g <- inla.read.graph(filename = "map.adj")
+
+
+
+b = length(map$HepatitisC)
+y = c( map$HepatitisC, map$HepatitisB)
+int = c(rep(1 ,13),rep(2,13))
+S= c(1:26)
+b1 = c(1:13,rep(NA ,13))
+b2= c(rep(NA,13),1:13)
+m = as.factor(int)
+
+
+E1 = c(map$E.c,rep(NA,b))
+E2 = c(rep(NA,b) , map$E.b)
+
+
+
+formula = y ~  -1  + m + offset(log(E1))+ offset(log(E2))+ 
+  f(S, model="besag2", graph=g, scale.model=TRUE)+
+  f(b1 , model = "bym", graph=g, scale.model=TRUE)+
+  f(b2 , model = "bym", graph=g, scale.model=TRUE)
+
+r <- inla(
+  formula,
+  family = "poisson",
+  data = data.frame(y, S, m, b1, b2),
+  verbose = TRUE,
+  control.predictor = list(compute = TRUE),
+  control.compute = list(return.marginals.predictor = TRUE)
+)
+
+
+# pander(round(r$summary.hyperpar[,c(1,2,3,5)],3))
+# 
+# pander(r$summary.fixed[,c(1,2,3,5)])
+
+
+# The relative risk for Hepatitis C from the joint model
+
+
+map$RRC <- r$summary.fitted.values[c(1:13), "mean"] / map$E.c
+boundaryregion.c <- st_union(map)
+
+# The relative risk for Hepatitis B from the joint model
+
+map$RRB <- r$summary.fitted.values[c(14:26), "mean"] / map$E.b
+
+
+
+
+
+
+
+
+# Calculate the common range for the color scales
+common_range <- range(c(map$RRC, map$RRB))
+
+# Plot for RRC
+C <- ggplot(data = boundaryregion.c) + 
+  geom_sf() +
+  geom_sf(data = map, aes(fill = RRC)) +
+  scale_fill_viridis_c(option = "viridis", name = "RR", limits = common_range) +  # Use common range
+  theme(plot.title = element_text(hjust = 0.5, size = 16))  # Center and enlarge the title
+
+# Plot for RRB
+B <- ggplot(data = boundaryregion.c) + 
+  geom_sf() +
+  geom_sf(data = map, aes(fill = RRB)) +
+  scale_fill_viridis_c(option = "viridis", name = "RR", limits = common_range) +  # Use common range
+  theme(plot.title = element_text(hjust = 0.5, size = 16))  # Center and enlarge the title
+
+# Plot both
+C + B
+
+# cd ~/Desktop/files/hepatite/dashboard/Dashboard
+# git init
+# cp -r _site/*
+# git add .
+# git commit -m "First dashboard"
+# git push -u origin main
+
+
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

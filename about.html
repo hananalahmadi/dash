@@ -9,11 +9,9 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Hanan Alahmadi" />
 
-<meta name="date" content="2024-11-21" />
 
-<title>Untitled</title>
+<title>Disease mapping for hepatitis</title>
 
 <script src="site_libs/header-attrs-2.27/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -269,39 +267,127 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Untitled</h1>
-<h4 class="author">Hanan Alahmadi</h4>
-<h4 class="date">2024-11-21</h4>
+<h1 class="title toc-ignore">Disease mapping for hepatitis</h1>
 
 </div>
 
 
-<div id="r-markdown" class="section level2">
-<h2>R Markdown</h2>
-<p>This is an R Markdown document. Markdown is a simple formatting
-syntax for authoring HTML, PDF, and MS Word documents. For more details
-on using R Markdown see <a href="http://rmarkdown.rstudio.com"
-class="uri">http://rmarkdown.rstudio.com</a>.</p>
-<p>When you click the <strong>Knit</strong> button a document will be
-generated that includes both content as well as the output of any
-embedded R code chunks within the document. You can embed an R code
-chunk like this:</p>
-<pre class="r"><code>summary(cars)</code></pre>
-<pre><code>##      speed           dist       
-##  Min.   : 4.0   Min.   :  2.00  
-##  1st Qu.:12.0   1st Qu.: 26.00  
-##  Median :15.0   Median : 36.00  
-##  Mean   :15.4   Mean   : 42.98  
-##  3rd Qu.:19.0   3rd Qu.: 56.00  
-##  Max.   :25.0   Max.   :120.00</code></pre>
+<p><br><br></p>
+<div id="hepatitis" class="section level1">
+<h1>Hepatitis</h1>
+<p>Hepatitis is an inflammation of the liver caused by various
+infectious viruses and noninfectious agents, leading to a spectrum of
+health complications, some of which may result in severe or
+life-threatening outcomes. The hepatitis virus is classified into five
+main types: A, B, C, D, and E. Each type causes liver disease but
+differs in transmission methods, severity, geographical prevalence, and
+prevention strategies. Notably, hepatitis B virus (HBV) and hepatitis C
+virus (HCV) are responsible for chronic infections in hundreds of
+millions of individuals worldwide and are the leading causes of liver
+cirrhosis, liver cancer, and deaths related to viral hepatitis.
+Globally, an estimated 354 million people live with hepatitis B or C,
+with testing and treatment often out of reach for many. In Saudi Arabia,
+HCV poses a significant public health concern, particularly among
+intravenous drug users and hemodialysis patients.</p>
 </div>
-<div id="including-plots" class="section level2">
-<h2>Including Plots</h2>
-<p>You can also embed plots, for example:</p>
-<p><img src="about_files/figure-html/pressure-1.png" width="672" /></p>
-<p>Note that the <code>echo = FALSE</code> parameter was added to the
-code chunk to prevent printing of the R code that generated the
-plot.</p>
+<div id="spatial-temporal-disease-mapping" class="section level1">
+<h1>Spatial temporal disease mapping</h1>
+<p>The spatial temporal disease mapping model can be expressed as
+follows:</p>
+<p><span class="math display">\[\begin{equation}
+\begin{split}
+y_{ij} &amp;\sim Po(E_{ij}\theta_{ij}), \\
+\log(\theta_{ij}) &amp;= \alpha + \sum_{f = 1}^{F} \beta_f X_{i f} +
+(\beta + \Delta_i) \times t_j+ b_i
+\end{split}
+\label{diseasemappingtemporal}
+\end{equation}\]</span> where <span
+class="math inline">\(y_{ij}\)</span> is the number of the disease cases
+observed at region <span class="math inline">\(i\)</span> and year <span
+class="math inline">\(j\)</span>, <span
+class="math inline">\(E_{ij}\)</span> is the expected count at region
+<span class="math inline">\(i\)</span> and year <span
+class="math inline">\(j\)</span>, <span
+class="math inline">\(\theta_{ij}\)</span> is the relative risk of
+region <span class="math inline">\(i\)</span> and year <span
+class="math inline">\(j\)</span>, <span
+class="math inline">\(\alpha\)</span> represents the overall risk level,
+<span class="math inline">\(\beta_f\)</span> is the <span
+class="math inline">\(f\)</span>-th fixed effect with covariate <span
+class="math inline">\(\mathbf{X}_f\)</span>, <span
+class="math inline">\(\beta\)</span> represent the fixed effect in time
+that captures the global linear trend over time, <span
+class="math inline">\(\Delta_i\)</span> follow independent and
+identically normal distribution and it represent the interaction between
+space and time, capturing how the area-specific trend deviates from the
+global trend <span class="math inline">\(\beta\)</span>, <span
+class="math inline">\(b_i\)</span> represents the spatial random effect
+that follow BYM.</p>
+</div>
+<div id="joint-disease-mapping" class="section level1">
+<h1>Joint disease mapping</h1>
+<p>The joint disease mapping model based on an shared component model
+(SCM) for two diseases can be expressed as follows for region <span
+class="math inline">\(i\)</span>, <span class="math inline">\(i =
+1,....,n\)</span>: <span class="math display">\[\begin{eqnarray}
+y_{i 1}|\theta_{i1} &amp;\sim&amp; \text{Poisson}\left(E_{i 1} \theta_{i
+1}\right) \nonumber \\
+y_{i 2}|\theta_{i2} &amp;\sim&amp; \text{Poisson}\left(E_{i 2} \theta_{i
+2}\right) \nonumber \\
+\log (\theta_{i 1}) &amp;=&amp; \alpha_{1} + \sum_{f = 1}^{F_1} \beta_f
+X_{i f} + b_{i 1} + S_{i} \nonumber \\
+\log (\theta_{i 2}) &amp;=&amp; \alpha_{2} + \sum_{f = 1}^{F_2} \gamma_f
+Z_{i f} + b_{i 2} + a S_{i}
+\label{eq:jointmeanmodel}
+\end{eqnarray}\]</span> where <span
+class="math inline">\(y_{ij}\)</span> represents the number of cases of
+disease <span class="math inline">\(j\)</span> in region <span
+class="math inline">\(i\)</span>, <span
+class="math inline">\(\theta_{ij}\)</span> is the relative risk of
+disease <span class="math inline">\(j\)</span> in region <span
+class="math inline">\(i\)</span>, and <span
+class="math inline">\(E_{ij}\)</span> is the expected number of cases
+for disease <span class="math inline">\(j\)</span> in region <span
+class="math inline">\(i\)</span>. Additionally, <span
+class="math inline">\(\alpha_j\)</span> is a disease-specific intercept
+for disease <span class="math inline">\(j\)</span>, <span
+class="math inline">\(\beta_f\)</span> is the <span
+class="math inline">\(f\)</span>-th fixed effect for disease 1 with
+covariate <span class="math inline">\(\mathbf{X}_f\)</span>, and <span
+class="math inline">\(\gamma_f\)</span> is the <span
+class="math inline">\(f\)</span>-th fixed effect for disease 2 with
+covariate <span class="math inline">\(\mathbf{Z}_f\)</span>. The term
+<span class="math inline">\(b_{ij}\)</span> represents a
+disease-specific spatial random effect (modeled using the
+Besag-York-Mollié (BYM) model), while <span
+class="math inline">\(S_i\)</span> is the shared spatial random effect
+with a proper Besag prior, parameterized by <span
+class="math inline">\(\tau\)</span> and <span
+class="math inline">\(d\)</span>. <span
+class="math display">\[\begin{equation}
+        S_{i}|\mathbf{S}_{-i} \sim N\left(\bar{S}_{\delta_i},
+\frac{\tau^{-1}}{(n_{\delta_i}+d)}\right), \forall i =1,\ldots, n,
+        \label{eq:besagproper}
+    \end{equation}\]</span> where <span class="math inline">\(d&gt;
+0\)</span> for an non-intrinsic model, <span
+class="math inline">\(\delta_i\)</span> represent the index set of
+neighbors for area <span class="math inline">\(i\)</span>, and <span
+class="math inline">\(n_{\delta_i}\)</span> denote the number of
+neighbors for area <span class="math inline">\(i\)</span>. The term
+<span class="math inline">\(\bar{S}_{\delta_i}\)</span> is defined as
+the average of the neighboring values, given by <span
+class="math inline">\(\bar{S}_{\delta_i} = \frac{1}{n_{\delta_i}}
+\sum_{j \in \delta_i} S_j,\)</span> where <span
+class="math inline">\(S_j\)</span> represents the values for neighboring
+areas. Additionally, <span class="math inline">\(\tau\)</span> refers to
+the precision parameter. Here, <span class="math inline">\(a\)</span>
+and the shared component <span class="math inline">\(\mathbf{S}\)</span>
+are used to evaluate the spatial dependence between the two diseases,
+while the random effect <span
+class="math inline">\(\mathbf{b}_j\)</span> captures the spatial effect
+within each disease. The prior for <span
+class="math inline">\(a\)</span> is assumed to be Gaussian, with mean 0
+and variance 1.</p>
 </div>
 
 

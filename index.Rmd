@@ -1,39 +1,9 @@
 ---
-title: "Untitled"
-author: "Hanan Alahmadi"
-date: "2024-11-21"
-output: html_document
+title: "Joint Disease Mapping between Hepatitis C and Hepatitis B in Saudi Arabia"
 ---
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-
-# cd ~/Desktop/files/hepatite/dash/dash
-# git init
-# git status
-# git add .
-# git commit -m "f dashboard"
-# git push -u origin main
-
-
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+<br><br>
+Disease risk mapping is a valuable tool for understanding the spatial variation of diseases by incorporating geographical information. In cases where data are available across multiple time periods, denoted as \( j \), with \( j = 1, \dots, J \), a spatio-temporal disease mapping model is needed to account for both spatial and temporal variability in disease risk. When two or more diseases share common risk factors, treating
+them as independent may lead to inaccurate conclusions. In such cases, modeling the
+diseases separately can be misleading, as it fails to account for the shared underlying risk
+factors. A joint disease mapping approach would be more appropriate to capture the dependency
+between diseases and provide a more accurate estimation of the relative risks. In this dashboard we present a spatio-temporal disease mapping for hepatitis C and joint disease mapping for hepatitis C and hepatitis B.

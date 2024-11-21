@@ -1,30 +1,46 @@
 ---
-title: "Untitled"
-author: "Hanan Alahmadi"
-date: "2024-11-21"
-output: html_document
+title: "Disease mapping for hepatitis"
 ---
+<br><br>
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+# Hepatitis
 
-## R Markdown
+Hepatitis is an inflammation of the liver caused by various infectious viruses and noninfectious agents, leading to a spectrum of health complications, some of which may result in severe or life-threatening outcomes. The hepatitis virus is classified into five main types: A, B, C, D, and E. Each type causes liver disease but differs in transmission methods, severity, geographical prevalence, and prevention strategies. Notably,  hepatitis B virus (HBV)  and  hepatitis C virus (HCV) are responsible for chronic infections in hundreds of millions of individuals worldwide and are the leading causes of liver cirrhosis, liver cancer, and deaths related to viral hepatitis. Globally, an estimated 354 million people live with hepatitis B or C, with testing and treatment often out of reach for many. In Saudi Arabia, HCV poses a significant public health concern, particularly among intravenous drug users and hemodialysis patients.
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+# Spatial temporal disease mapping
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+The spatial temporal disease mapping model can be expressed as follows: 
 
-```{r cars}
-summary(cars)
-```
+\begin{equation}
+\begin{split}
+y_{ij} &\sim Po(E_{ij}\theta_{ij}), \\
+\log(\theta_{ij}) &= \alpha + \sum_{f = 1}^{F} \beta_f X_{i f} + (\beta + \Delta_i) \times t_j+ b_i
+\end{split}
+\label{diseasemappingtemporal}
+\end{equation}
+where $y_{ij}$ is the number of the disease cases observed at region $i$ and year $j$, $E_{ij}$ is the expected count at region $i$ and year $j$, $\theta_{ij}$ is the relative risk of region $i$ and year $j$, \(\alpha\) represents the overall risk level, $\beta_f$ is the $f$-th fixed effect with covariate $\mathbf{X}_f$, $\beta$ represent the fixed effect in time that captures the global linear trend over time, $\Delta_i$ follow independent and identically normal distribution and it represent the interaction between space and time, capturing how the area-specific trend deviates from the global trend $\beta$, $b_i$ represents the spatial random effect that follow BYM.
 
-## Including Plots
+# Joint disease mapping
 
-You can also embed plots, for example:
+The joint disease mapping model based on an shared component model (SCM) for two diseases can be expressed as follows for region $i$, $i = 1,....,n$:
+\begin{eqnarray}
+y_{i 1}|\theta_{i1} &\sim& \text{Poisson}\left(E_{i 1} \theta_{i 1}\right) \nonumber \\
+y_{i 2}|\theta_{i2} &\sim& \text{Poisson}\left(E_{i 2} \theta_{i 2}\right) \nonumber \\
+\log (\theta_{i 1}) &=& \alpha_{1} + \sum_{f = 1}^{F_1} \beta_f X_{i f} + b_{i 1} + S_{i} \nonumber \\
+\log (\theta_{i 2}) &=& \alpha_{2} + \sum_{f = 1}^{F_2} \gamma_f Z_{i f} + b_{i 2} + a S_{i} 
+\label{eq:jointmeanmodel}
+\end{eqnarray}
+where $y_{ij}$ represents the number of cases of disease $j$ in region $i$, $\theta_{ij}$ is the relative risk of disease $j$ in region $i$, and $E_{ij}$ is the expected number of cases for disease $j$ in region $i$. Additionally, $\alpha_j$ is a disease-specific intercept for disease $j$, $\beta_f$ is the $f$-th fixed effect for disease 1 with covariate $\mathbf{X}_f$, and $\gamma_f$ is the $f$-th fixed effect for disease 2 with covariate $\mathbf{Z}_f$. 
+The term $b_{ij}$ represents a disease-specific spatial random effect (modeled using the Besag-York-Mollié (BYM) model), while $S_i$ is the shared spatial random effect with a proper Besag prior, parameterized by $\tau$ and $d$.
+    \begin{equation}
+        S_{i}|\mathbf{S}_{-i} \sim N\left(\bar{S}_{\delta_i}, \frac{\tau^{-1}}{(n_{\delta_i}+d)}\right), \forall i =1,\ldots, n,
+        \label{eq:besagproper}
+    \end{equation}
+where  $d> 0$ for an non-intrinsic model, $\delta_i$ represent the index set of neighbors for area $i$, and $n_{\delta_i}$ denote the number of neighbors for area $i$. The term $\bar{S}_{\delta_i}$ is defined as the average of the neighboring values, given by 
+$\bar{S}_{\delta_i} = \frac{1}{n_{\delta_i}} \sum_{j \in \delta_i} S_j,$
+where $S_j$ represents the values for neighboring areas. Additionally, $\tau$ refers to the precision parameter.
+Here, $a$ and the shared component $\mathbf{S}$ are used to evaluate the spatial dependence between the two diseases, while the random effect $\mathbf{b}_j$ captures the spatial effect within each disease. The prior for $a$ is assumed to be Gaussian, with mean 0 and variance 1.
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
