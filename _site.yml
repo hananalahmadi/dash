@@ -14,3 +14,4 @@ output:
   html_document:
     theme: flatly
     highlight: textmate
+    css: styles.css
