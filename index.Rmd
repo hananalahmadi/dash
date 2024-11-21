@@ -25,6 +25,15 @@ You can also embed plots, for example:
 
 ```{r pressure, echo=FALSE}
 plot(pressure)
+
+# cd ~/Desktop/files/hepatite/dash/dash
+# git init
+# git status
+# git add .
+# git commit -m "f dashboard"
+# git push -u origin main
+
+
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
