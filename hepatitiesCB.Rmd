@@ -6,12 +6,15 @@ title: "Hepatities C & Hepatities B in Saudi Arbaia"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+For hepatitis C, the highest relative risks are observed in the western regions, particularly in Makkah and Al Bahah, while the northern regions, such as Al-Jawf and Tabuk, exhibit the lowest risks. In contrast, for hepatitis B, the southern regions, particularly Jazan, display the highest relative risk, with values indicated by the yellow color corresponding to approximately 2.5. Meanwhile, the northern regions, such as Al-Jawf and Hail, show the lowest relative risks for hepatitis B.
+
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE, comment=NA}
 
 
 
 
+# The map below illustrates the standardized incidence ratios (SIR) for hepatitis C and hepatitis B in Saudi Arabia in 2019. The spatial patterns for many regions appear to be highly similar, which may be attributed to the shared risk factors for both diseases
 
 library(sf)
 library(SpatialEpi)
@@ -31,8 +34,9 @@ library(pander)
 library(spdep)
 library(INLA)
 library(gridExtra)
-library(rgeoboundaries)
+#library(rgeoboundaries)
 library(rnaturalearth)
+library(htmltools)
 
 #######################
 # map of Saudi Arabia
@@ -62,12 +66,12 @@ map$name[13]="Tabuk"
 
 
 
-setwd("~/Desktop/files/hepatite/website/hepatitis")
+setwd("~/Desktop/files/hepatite/dash/dash")
 
 ####################
 # Hepatitis Data
 ####################
-data <- read.csv("~/Desktop/files/hepatite/website/hepatitis/data/hepatites.csv", header = T)
+data <- read.csv("~/Desktop/files/hepatite/dash/dash/data/hepatites.csv", header = T)
 
 
 
@@ -89,40 +93,7 @@ map <- merge(map, data, by.x = "name", by.y = "regions")
 ###################################
 
 
-#######################
-# Plot Hepatitis C
-#######################
 
-
-theme_set(theme_minimal())
-boundaryregion <- st_union(map)
-
-pc <- ggplot(data = boundaryregion) +
-  geom_sf() +
-  geom_sf(data = map, aes(fill = HepatitisC)) +
-  scale_fill_viridis_c(option = "viridis") +  
-  labs(fill = "Hepatitis C")
-
-
-
-
-#######################
-# Plot Hepatitis B
-#######################
-
-
-theme_set(theme_minimal())
-boundaryregion <- st_union(map)
-
-pb <- ggplot(data = boundaryregion) +
-  geom_sf() +
-  geom_sf(data = map, aes(fill = HepatitisB)) +
-  scale_fill_viridis_c(option = "viridis") +  
-  labs(fill = "Hepatitis B")
-
-
-
-pc + pb 
 
 
 
@@ -159,26 +130,49 @@ map$SIR.b <- map$HepatitisB/map$E.b
 
 # Set the color scale limits based on the min and max SIR values across both datasets
 common_limits <- range(c(map$SIR.c, map$SIR.b), na.rm = TRUE)
+boundaryregion <- st_union(map)
 
-# Plot sc with common color limits
-sc <- ggplot(data = boundaryregion) +
-  geom_sf() +
-  geom_sf(data = map, aes(fill = SIR.c)) +
-  scale_fill_viridis_c(option = "viridis", limits = common_limits) +  
-  labs(fill = "SIR (C)") +
-  theme_minimal()
+# Create a common color palette for both datasets based on the common limits
+palette <- colorNumeric(palette = "viridis", domain = common_limits, na.color = "transparent")
 
-# Plot sb with common color limits
-sb <- ggplot(data = boundaryregion) +
-  geom_sf() +
-  geom_sf(data = map, aes(fill = SIR.b)) +
-  scale_fill_viridis_c(option = "viridis", limits = common_limits) +  
-  labs(fill = "SIR (B)") +
-  theme_minimal()
+# Create the leaflet map for SIR.c
+leaflet_sc <- leaflet(map) %>%
+  addTiles() %>%
+  addPolygons(data = map, 
+              fillColor = ~palette(SIR.c), 
+              fillOpacity = 0.7, 
+              color = "gray", 
+              weight = 1,
+              label = ~paste0("SIR (C): ", SIR.c)) %>%
+  addLegend(pal = palette, values = ~SIR.c, title = "SIR (C)")
 
-# Display both plots side by side using patchwork or cowplot
-library(patchwork)
-sc + sb
+# Create the leaflet map for SIR.b
+leaflet_sb <- leaflet(map) %>%
+  addTiles() %>%
+  addPolygons(data = map, 
+              fillColor = ~palette(SIR.b), 
+              fillOpacity = 0.7, 
+              color = "gray", 
+              weight = 1,
+              label = ~paste0("SIR (B): ", SIR.b)) %>%
+  addLegend(pal = palette, values = ~SIR.b, title = "SIR (B)")
+
+# Display the maps
+
+
+
+# browsable(
+#   tagList(
+#     div(
+#       style = "display: inline-block; width: 48%; margin-right: 3%;", 
+#       leaflet_sc
+#     ),
+#     div(
+#       style = "display: inline-block; width: 48%;", 
+#       leaflet_sb
+#     )
+#   )
+# )
 
 
 
@@ -246,28 +240,72 @@ map$RRB <- r$summary.fitted.values[c(14:26), "mean"] / map$E.b
 # Calculate the common range for the color scales
 common_range <- range(c(map$RRC, map$RRB))
 
-# Plot for RRC
-C <- ggplot(data = boundaryregion.c) + 
-  geom_sf() +
-  geom_sf(data = map, aes(fill = RRC)) +
-  scale_fill_viridis_c(option = "viridis", name = "RR", limits = common_range) +  # Use common range
-  theme(plot.title = element_text(hjust = 0.5, size = 16))  # Center and enlarge the title
+# # Plot for RRC
+# C <- ggplot(data = boundaryregion.c) + 
+#   geom_sf() +
+#   geom_sf(data = map, aes(fill = RRC)) +
+#   scale_fill_viridis_c(option = "viridis", name = "RR", limits = common_range) +  # Use common range
+#   theme(plot.title = element_text(hjust = 0.5, size = 16))  # Center and enlarge the title
+# 
+# # Plot for RRB
+# B <- ggplot(data = boundaryregion.c) + 
+#   geom_sf() +
+#   geom_sf(data = map, aes(fill = RRB)) +
+#   scale_fill_viridis_c(option = "viridis", name = "RR", limits = common_range) +  # Use common range
+#   theme(plot.title = element_text(hjust = 0.5, size = 16))  # Center and enlarge the title
+# 
+# # Plot both
+# C + B
 
-# Plot for RRB
-B <- ggplot(data = boundaryregion.c) + 
-  geom_sf() +
-  geom_sf(data = map, aes(fill = RRB)) +
-  scale_fill_viridis_c(option = "viridis", name = "RR", limits = common_range) +  # Use common range
-  theme(plot.title = element_text(hjust = 0.5, size = 16))  # Center and enlarge the title
 
-# Plot both
-C + B
 
-# cd ~/Desktop/files/hepatite/dashboard/Dashboard
+# Create a common color palette for both datasets based on the common limits
+palette <- colorNumeric(palette = "viridis", domain = common_range, na.color = "transparent")
+
+# Create the leaflet map for SIR.c
+leaflet_scr <- leaflet(map) %>%
+  addTiles() %>%
+  addPolygons(data = map, 
+              fillColor = ~palette(RRC), 
+              fillOpacity = 0.7, 
+              color = "gray", 
+              weight = 1,
+              label = ~paste0("RR (C): ", RRC)) %>%
+  addLegend(pal = palette, values = ~RRC, title = "RR (C)")
+
+# Create the leaflet map for SIR.b
+leaflet_sbr <- leaflet(map) %>%
+  addTiles() %>%
+  addPolygons(data = map, 
+              fillColor = ~palette(RRB), 
+              fillOpacity = 0.7, 
+              color = "gray", 
+              weight = 1,
+              label = ~paste0("RR (B): ", RRB)) %>%
+  addLegend(pal = palette, values = ~RRB, title = "RR (B)")
+
+# Display the maps
+
+
+
+browsable(
+  tagList(
+    div(
+      style = "display: inline-block; width: 48%; margin-right: 3%;", 
+      leaflet_scr
+    ),
+    div(
+      style = "display: inline-block; width: 48%;", 
+      leaflet_sbr
+    )
+  )
+)
+
+
+# cd ~/Desktop/files/hepatite/dash/dash
 # git init
-# cp -r _site/*
 # git add .
-# git commit -m "First dashboard"
+# git commit -m "se dashboard"
 # git push -u origin main
 
 

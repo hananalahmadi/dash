@@ -1,9 +1,59 @@
 ---
-title: "Joint Disease Mapping between Hepatitis C and Hepatitis B in Saudi Arabia"
+title: "Hepatitis C and Hepatitis B in Saudi Arabia"
 ---
 <br><br>
-Disease risk mapping is a valuable tool for understanding the spatial variation of diseases by incorporating geographical information. In cases where data are available across multiple time periods, denoted as \( j \), with \( j = 1, \dots, J \), a spatio-temporal disease mapping model is needed to account for both spatial and temporal variability in disease risk. When two or more diseases share common risk factors, treating
-them as independent may lead to inaccurate conclusions. In such cases, modeling the
+Hepatitis is a disease characterized by liver inflammation caused by infectious viruses and noninfectious agents, often leading to severe health complications and life-threatening outcomes. As a significant public health concern, understanding and modeling the geographic and temporal patterns of hepatitis is critical for informing effective prevention and control strategies. Disease risk mapping is a valuable tool for understanding the spatial variation of diseases by incorporating geographical information. A spatio-temporal disease mapping model is used to account for both spatial and temporal variability in disease risk. When two or more diseases share common risk factors, treating them as independent may lead to inaccurate conclusions. In such cases, modeling the
 diseases separately can be misleading, as it fails to account for the shared underlying risk
 factors. A joint disease mapping approach would be more appropriate to capture the dependency
-between diseases and provide a more accurate estimation of the relative risks. In this dashboard we present a spatio-temporal disease mapping for hepatitis C and joint disease mapping for hepatitis C and hepatitis B.
+between diseases and provide a more accurate estimation of the relative risks. In this dashboard we present a spatio-temporal disease mapping for hepatitis C and joint disease mapping for hepatitis C and hepatitis B. Saudi Arabia is the largest country in the Arabian Peninsula, covering approximately 80\% of its landmass, with a total area of 2,217,949 square kilometers. The Kingdom is divided into 13 governing provinces, encompassing over 5,000 villages and cities. Given the vast geographic expanse, it is evident that spatial variation in disease prevalence can differ significantly across the country, as the large area contributes to diverse environmental and socio-demographic conditions.
+<br><br>
+```{r, echo=FALSE, warning=FALSE, message=FALSE, comment=NA, fig.height=4, fig.width=9.5}
+
+
+setwd("~/Desktop/files/hepatite/dash/dash")
+
+library(rnaturalearth)
+library(sf)
+library(leaflet)
+library(dplyr)
+
+
+# Get the map of Saudi Arabia
+map <- ne_states(country = "Saudi Arabia", returnclass = "sf")
+map <- st_set_crs(map, 4326)
+
+# Adjust region names to match population data
+map$name[1] = "Asir"
+map$name[2] = "Al Bahah"
+map$name[3] = "Northern Borders"
+map$name[4] = "Al Jawf"
+map$name[5] = "Madinah"
+map$name[6] = "Qassim"
+map$name[7] = "Riyadh"
+map$name[8] = "Eastern Province"
+map$name[9] = "Hail"
+map$name[10] = "Jazan"
+map$name[11] = "Makkah"
+map$name[12] = "Najran"
+map$name[13] = "Tabuk"
+
+# Population data for Saudi Arabia's regions
+regions <- data.frame(
+  regions = c("Asir", "Al Bahah", "Northern Borders", "Al Jawf", "Madinah", "Qassim", "Riyadh", 
+              "Eastern Province", "Hail", "Jazan", "Makkah", "Najran", "Tabuk"),
+  pop = c(1876328, 319257, 346525, 557379, 2004830, 1260269, 7979262, 4740235, 688236, 1315117, 7607556, 548237, 820568)
+)
+
+# Merge population data with the map
+map <- left_join(map, regions, by = c("name" = "regions"))
+
+l <- leaflet(map) %>% addTiles()
+
+pal <- colorNumeric(palette = "viridis", domain = map$pop)
+
+l %>% addPolygons(color = "grey", weight = 1, fillColor = ~pal(pop), fillOpacity = 0.5) %>%
+  addLegend(pal = pal, values = ~pop, opacity = 0.5, title = "population", position = "bottomright")
+
+```
+
+

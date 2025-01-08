@@ -7,10 +7,15 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, comment=NA}
+The relative risk maps show a clear decrease in risk is observed, as the maps transition from red shades, indicating a high relative risk, to darker purple shades, representing a low relative risk. Notably, the Makkah region, located in the western part of the
+map, consistently shows the highest risk of hepatitis C across the years. In contrast, the
+regions in the northern part of the map demonstrates the lowest risk during the same
+time frame. 
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, comment=NA, fig.height=4, fig.width=9.5}
 
 
-setwd("~/Desktop/files/hepatite/website/hepatitis")
+setwd("~/Desktop/files/hepatite/dash/dash")
 
 
 library(sf)
@@ -30,8 +35,10 @@ library(pander)
 library(spdep)
 library(INLA)
 library(gridExtra)
-library(rgeoboundaries)
+#library(rgeoboundaries)
 library(rnaturalearth)
+library(tidyr)
+library(htmltools)
 
 
 
@@ -92,7 +99,7 @@ population <- data.frame(
 
 # read the HepatitisC data
 
-data <- read.csv("~/Desktop/files/hepatite/website/hepatitis/data/HepatitisC.csv", header = T)
+data <- read.csv("~/Desktop/files/hepatite/dash/dash/data/HepatitisC.csv", header = T)
 
 d <- aggregate(
   x = data$cases,
@@ -170,42 +177,64 @@ map <- merge(map, dw, by.x = "name", by.y = "region")
 
 
 
-
-library(tidyr)
 map_sf <- gather(map, year, SIR, paste0("SIR.", 2019:2022))
-
 
 map_sf$year <- as.integer(substring(map_sf$year, 5, 8))
 
 
 
-library(ggplot2)
+# Create a color palette for SIR
+pal_sir <- colorNumeric(palette = "viridis", domain = map_sf$SIR, na.color = "transparent")
 
-# If the viridis package is not installed, install it
-# install.packages("viridis")
+# Initialize the leaflet map
+leaflet_map <- leaflet() %>%
+  addTiles() %>%
+  setView(lng = 45, lat = 23.5, zoom = 4) # Center on Saudi Arabia
 
-library(viridis)
+# Split data by year for creating individual layers
+map_layers <- split(map_sf, map_sf$year)
 
-ggplot(map_sf) + 
-  geom_sf(aes(fill = SIR)) + 
-  facet_wrap(~year, dir = "h", ncol = 4) + 
- # ggtitle("SIR") + 
-  theme_bw() + 
-  theme(
-    axis.text.x = element_blank(),
-    axis.text.y = element_blank(),
-    axis.ticks = element_blank()
-  ) + 
-  scale_fill_viridis_c()  # Use the viridis color scale
+# Add yearly SIR polygons to the map
+for (year in names(map_layers)) {
+  year_data <- map_layers[[year]]
+  
+  leaflet_map <- leaflet_map %>%
+    addPolygons(
+      data = year_data,
+      fillColor = ~pal_sir(SIR),
+      color = "gray",
+      weight = 1,
+      opacity = 1,
+      fillOpacity = 0.7,
+      popup = ~paste0(
+        "<b>Region:</b> ", name, "<br>",
+        "<b>Year:</b> ", year, "<br>",
+        "<b>SIR:</b> ", round(SIR, 2)
+      ),
+      group = paste0("SIR - ", year)
+    )
+}
+
+# Add layers control for toggling years, with only the first year checked by default
+# leaflet_map <- leaflet_map %>%
+#   addLayersControl(
+#     overlayGroups = paste0("SIR - ", names(map_layers)),
+#     options = layersControlOptions(collapsed = FALSE, autoZIndex = FALSE)
+#   ) %>%
+#   hideGroup(paste0("SIR - ", names(map_layers)[-1])) %>%
+#   addLegend(
+#     position = "bottomright",
+#     pal = pal_sir,
+#     values = map_sf$SIR,
+#     title = "SIR",
+#     opacity = 1
+#   )
+
+# Plot the leaflet map
 
 
-g <- ggplot(d, aes(x = year, y = SIR, 
-                   group = region, color = region)) +
-  geom_line() + geom_point(size = 2) + theme_bw()
 
 
-library(plotly)
-#ggplotly(g)
 
 
 
@@ -231,11 +260,7 @@ res <- inla(formula,
             control.compute = list(dic = T, waic = T, cpo = T)
 )
 
-# summary(res)
-# 
-# pander(round(res$summary.hyperpar[,c(1,2,3,5)],3))
-# 
-# pander(res$summary.fixed[,c(1,2,3,5)])
+
 
 
 d$RR <- res$summary.fitted.values[, "mean"]
@@ -250,29 +275,74 @@ map_sf <- merge(
 
 
 
+# Create a color palette for RR
+pal_rr <- colorNumeric(palette = "viridis", domain = map_sf$RR, na.color = "transparent")
+
+# Initialize the leaflet map for RR
+leaflet_map_rr <- leaflet() %>%
+  addTiles() %>%
+  setView(lng = 45, lat = 23.5, zoom = 4) # Center on Saudi Arabia
+
+# Split data by year for creating individual layers
+map_layers_rr <- split(map_sf, map_sf$year)
+
+# Add yearly RR polygons to the map
+for (year in names(map_layers_rr)) {
+  year_data <- map_layers_rr[[year]]
+  
+  leaflet_map_rr <- leaflet_map_rr %>%
+    addPolygons(
+      data = year_data,
+      fillColor = ~pal_rr(RR),
+      color = "gray",
+      weight = 1,
+      opacity = 1,
+      fillOpacity = 0.7,
+      popup = ~paste0(
+        "<b>Region:</b> ", name, "<br>",
+        "<b>Year:</b> ", year, "<br>",
+        "<b>RR:</b> ", round(RR, 2)
+      ),
+      group = paste0("RR - ", year)
+    )
+}
+
+# Add layers control for toggling years, with only the first year checked by default
+leaflet_map_rr <- leaflet_map_rr %>%
+  addLayersControl(
+    overlayGroups = paste0("RR - ", names(map_layers_rr)),
+    options = layersControlOptions(collapsed = FALSE, autoZIndex = FALSE)
+  ) %>%
+  hideGroup(paste0("RR - ", names(map_layers_rr)[-1])) %>%
+  addLegend(
+    position = "bottomright",
+    pal = pal_rr,
+    values = map_sf$RR,
+    title = "RR",
+    opacity = 1
+  )
+
+leaflet_map_rr
+# Plot the leaflet map for RR
 
 
-# If the viridis package is not installed, install it
-# install.packages("viridis")
 
-library(viridis)
 
-ggplot(map_sf) + 
-  geom_sf(aes(fill = RR)) + 
-  facet_wrap(~year, dir = "h", ncol = 4) + 
-  ggtitle("RR") + 
-  theme_bw() + 
-  theme(
-    axis.text.x = element_blank(),
-    axis.text.y = element_blank(),
-    axis.ticks = element_blank()
-  ) + 
-  scale_fill_viridis_c()  # Use viridis color scale
 
+# browsable(
+#   tagList(
+#     div(
+#       style = "display: inline-block; width: 48%; margin-right: 3%;", 
+#       leaflet_map
+#     ),
+#     div(
+#       style = "display: inline-block; width: 48%;", 
+#       leaflet_map_rr
+#     )
+#   )
+# )
 
 
 
 ```
-
-
 

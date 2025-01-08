@@ -2,14 +2,14 @@ name: "my-website"
 navbar:
   title: '<img src="noname.png" alt="GeoHealth" style="height: 100px; width: 100px;">' # Change height and width here to 150px or any size you prefer
   left:
-    - text: "Home"
+    - text: "Main"
       href: index.html
-    - text: "About"
-      href: about.html
     - text: "Hepatities C"
       href: hepatities.html
     - text: "Hepatities B & Hepatities C"
       href: hepatitiesCB.html
+    - text: "Methodology "
+      href: about.html
 output:
   html_document:
     theme: flatly
