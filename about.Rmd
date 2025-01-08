@@ -3,9 +3,10 @@ title: "Disease mapping for hepatitis"
 ---
 <br><br>
 
-# Hepatitis
+# Data Sources
 
-Hepatitis is an inflammation of the liver caused by various infectious viruses and noninfectious agents, leading to a spectrum of health complications, some of which may result in severe or life-threatening outcomes. The hepatitis virus is classified into five main types: A, B, C, D, and E. Each type causes liver disease but differs in transmission methods, severity, geographical prevalence, and prevention strategies. Notably,  hepatitis B virus (HBV)  and  hepatitis C virus (HCV) are responsible for chronic infections in hundreds of millions of individuals worldwide and are the leading causes of liver cirrhosis, liver cancer, and deaths related to viral hepatitis. Globally, an estimated 354 million people live with hepatitis B or C, with testing and treatment often out of reach for many. In Saudi Arabia, HCV poses a significant public health concern, particularly among intravenous drug users and hemodialysis patients.
+Hepatitis B and C surveillance cases were obtained from the Saudi Open Data Platform. Population denominators, essential for calculating expected disease counts, were extracted from the Saudi Census Portal. All data were aggregated at the administrative region level, encompassing Saudi Arabia's 13 regions. The temporal coverage varies by disease: hepatitis C data spans from 2019 to 2022, while hepatitis B data is available for 2019 only.
+
 
 # Spatial temporal disease mapping
 

@@ -1,12 +1,13 @@
 ---
-title: "Hepatities C & Hepatities B in Saudi Arbaia"
+title: "Hepatitis C & Hepatitis B in Saudi Arbaia"
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-For hepatitis C, the highest relative risks are observed in the western regions, particularly in Makkah and Al Bahah, while the northern regions, such as Al-Jawf and Tabuk, exhibit the lowest risks. In contrast, for hepatitis B, the southern regions, particularly Jazan, display the highest relative risk, with values indicated by the yellow color corresponding to approximately 2.5. Meanwhile, the northern regions, such as Al-Jawf and Hail, show the lowest relative risks for hepatitis B.
+
+In 2019, we estimated the relative risk of hepatitis C and hepatitis B across various regions of Saudi Arabia. For hepatitis C, the highest relative risks are observed in the western regions, particularly in Makkah and Al Bahah, while the northern regions, such as Al-Jawf and Tabuk, exhibit the lowest risks. In contrast, for hepatitis B, the southern regions, particularly Jazan, display the highest relative risk, with values indicated by the yellow color corresponding to approximately 2.5. Meanwhile, the northern regions, such as Al-Jawf and Hail, show the lowest relative risks for hepatitis B.
 
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE, comment=NA}
@@ -305,7 +306,7 @@ browsable(
 # cd ~/Desktop/files/hepatite/dash/dash
 # git init
 # git add .
-# git commit -m "se dashboard"
+# git commit -m "four dashboard"
 # git push -u origin main
 
 

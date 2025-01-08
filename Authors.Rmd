@@ -1,0 +1,9 @@
+---
+title: "Authors"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+The hepatitis dashboard was developed by Ms. Hanan Alhamadi under the supervision of Prof. Paula Moraga in the GeoHealth research group at King Abdullah University of Science and Technology (KAUST).

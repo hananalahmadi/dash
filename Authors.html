@@ -11,7 +11,7 @@
 
 
 
-<title>Disease mapping for hepatitis</title>
+<title>Authors</title>
 
 <script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -270,121 +270,14 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Disease mapping for hepatitis</h1>
+<h1 class="title toc-ignore">Authors</h1>
 
 </div>
 
 
-<p><br><br></p>
-<div id="data-sources" class="section level1">
-<h1>Data Sources</h1>
-<p>Hepatitis B and C surveillance cases were obtained from the Saudi
-Open Data Platform. Population denominators, essential for calculating
-expected disease counts, were extracted from the Saudi Census Portal.
-All data were aggregated at the administrative region level,
-encompassing Saudi Arabia’s 13 regions. The temporal coverage varies by
-disease: hepatitis C data spans from 2019 to 2022, while hepatitis B
-data is available for 2019 only.</p>
-</div>
-<div id="spatial-temporal-disease-mapping" class="section level1">
-<h1>Spatial temporal disease mapping</h1>
-<p>The spatial temporal disease mapping model can be expressed as
-follows:</p>
-<p><span class="math display">\[\begin{equation}
-\begin{split}
-y_{ij} &amp;\sim Po(E_{ij}\theta_{ij}), \\
-\log(\theta_{ij}) &amp;= \alpha + \sum_{f = 1}^{F} \beta_f X_{i f} +
-(\beta + \Delta_i) \times t_j+ b_i
-\end{split}
-\label{diseasemappingtemporal}
-\end{equation}\]</span> where <span
-class="math inline">\(y_{ij}\)</span> is the number of the disease cases
-observed at region <span class="math inline">\(i\)</span> and year <span
-class="math inline">\(j\)</span>, <span
-class="math inline">\(E_{ij}\)</span> is the expected count at region
-<span class="math inline">\(i\)</span> and year <span
-class="math inline">\(j\)</span>, <span
-class="math inline">\(\theta_{ij}\)</span> is the relative risk of
-region <span class="math inline">\(i\)</span> and year <span
-class="math inline">\(j\)</span>, <span
-class="math inline">\(\alpha\)</span> represents the overall risk level,
-<span class="math inline">\(\beta_f\)</span> is the <span
-class="math inline">\(f\)</span>-th fixed effect with covariate <span
-class="math inline">\(\mathbf{X}_f\)</span>, <span
-class="math inline">\(\beta\)</span> represent the fixed effect in time
-that captures the global linear trend over time, <span
-class="math inline">\(\Delta_i\)</span> follow independent and
-identically normal distribution and it represent the interaction between
-space and time, capturing how the area-specific trend deviates from the
-global trend <span class="math inline">\(\beta\)</span>, <span
-class="math inline">\(b_i\)</span> represents the spatial random effect
-that follow BYM.</p>
-</div>
-<div id="joint-disease-mapping" class="section level1">
-<h1>Joint disease mapping</h1>
-<p>The joint disease mapping model based on an shared component model
-(SCM) for two diseases can be expressed as follows for region <span
-class="math inline">\(i\)</span>, <span class="math inline">\(i =
-1,....,n\)</span>: <span class="math display">\[\begin{eqnarray}
-y_{i 1}|\theta_{i1} &amp;\sim&amp; \text{Poisson}\left(E_{i 1} \theta_{i
-1}\right) \nonumber \\
-y_{i 2}|\theta_{i2} &amp;\sim&amp; \text{Poisson}\left(E_{i 2} \theta_{i
-2}\right) \nonumber \\
-\log (\theta_{i 1}) &amp;=&amp; \alpha_{1} + \sum_{f = 1}^{F_1} \beta_f
-X_{i f} + b_{i 1} + S_{i} \nonumber \\
-\log (\theta_{i 2}) &amp;=&amp; \alpha_{2} + \sum_{f = 1}^{F_2} \gamma_f
-Z_{i f} + b_{i 2} + a S_{i}
-\label{eq:jointmeanmodel}
-\end{eqnarray}\]</span> where <span
-class="math inline">\(y_{ij}\)</span> represents the number of cases of
-disease <span class="math inline">\(j\)</span> in region <span
-class="math inline">\(i\)</span>, <span
-class="math inline">\(\theta_{ij}\)</span> is the relative risk of
-disease <span class="math inline">\(j\)</span> in region <span
-class="math inline">\(i\)</span>, and <span
-class="math inline">\(E_{ij}\)</span> is the expected number of cases
-for disease <span class="math inline">\(j\)</span> in region <span
-class="math inline">\(i\)</span>. Additionally, <span
-class="math inline">\(\alpha_j\)</span> is a disease-specific intercept
-for disease <span class="math inline">\(j\)</span>, <span
-class="math inline">\(\beta_f\)</span> is the <span
-class="math inline">\(f\)</span>-th fixed effect for disease 1 with
-covariate <span class="math inline">\(\mathbf{X}_f\)</span>, and <span
-class="math inline">\(\gamma_f\)</span> is the <span
-class="math inline">\(f\)</span>-th fixed effect for disease 2 with
-covariate <span class="math inline">\(\mathbf{Z}_f\)</span>. The term
-<span class="math inline">\(b_{ij}\)</span> represents a
-disease-specific spatial random effect (modeled using the
-Besag-York-Mollié (BYM) model), while <span
-class="math inline">\(S_i\)</span> is the shared spatial random effect
-with a proper Besag prior, parameterized by <span
-class="math inline">\(\tau\)</span> and <span
-class="math inline">\(d\)</span>. <span
-class="math display">\[\begin{equation}
-        S_{i}|\mathbf{S}_{-i} \sim N\left(\bar{S}_{\delta_i},
-\frac{\tau^{-1}}{(n_{\delta_i}+d)}\right), \forall i =1,\ldots, n,
-        \label{eq:besagproper}
-    \end{equation}\]</span> where <span class="math inline">\(d&gt;
-0\)</span> for an non-intrinsic model, <span
-class="math inline">\(\delta_i\)</span> represent the index set of
-neighbors for area <span class="math inline">\(i\)</span>, and <span
-class="math inline">\(n_{\delta_i}\)</span> denote the number of
-neighbors for area <span class="math inline">\(i\)</span>. The term
-<span class="math inline">\(\bar{S}_{\delta_i}\)</span> is defined as
-the average of the neighboring values, given by <span
-class="math inline">\(\bar{S}_{\delta_i} = \frac{1}{n_{\delta_i}}
-\sum_{j \in \delta_i} S_j,\)</span> where <span
-class="math inline">\(S_j\)</span> represents the values for neighboring
-areas. Additionally, <span class="math inline">\(\tau\)</span> refers to
-the precision parameter. Here, <span class="math inline">\(a\)</span>
-and the shared component <span class="math inline">\(\mathbf{S}\)</span>
-are used to evaluate the spatial dependence between the two diseases,
-while the random effect <span
-class="math inline">\(\mathbf{b}_j\)</span> captures the spatial effect
-within each disease. The prior for <span
-class="math inline">\(a\)</span> is assumed to be Gaussian, with mean 0
-and variance 1.</p>
-</div>
+<p>The hepatitis dashboard was developed by Ms. Hanan Alhamadi under the
+supervision of Prof. Paula Moraga in the GeoHealth research group at
+King Abdullah University of Science and Technology (KAUST).</p>
 
 
 
