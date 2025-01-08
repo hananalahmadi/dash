@@ -1,5 +1,5 @@
 ---
-title: "Hepatitis C in Saudi Arbaia (2019-2022)"
+title: "Hepatitis C in Saudi Arabia (2019-2022)"
 ---
 
 ```{r setup, include=FALSE}
@@ -7,7 +7,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-The relative risk maps show a clear decrease in risk is observed, as the maps transition from yellow shades, indicating a high relative risk, to darker purple shades, representing a low relative risk. Notably, the Makkah region, located in the western part of the
+The relative risk maps show a clear decrease in risk, as the maps transition from yellow shades, indicating a high relative risk, to darker purple shades, representing a low relative risk. Notably, the Makkah region, located in the western part of the
 map, consistently shows the highest risk of hepatitis C across the years. In contrast, the
 regions in the northern part of the map demonstrates the lowest risk during the same
 time frame. 

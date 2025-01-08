@@ -1,5 +1,5 @@
 ---
-title: "Hepatitis C & Hepatitis B in Saudi Arbaia"
+title: "Hepatitis C & Hepatitis B in Saudi Arabia"
 ---
 
 ```{r setup, include=FALSE}
@@ -306,7 +306,7 @@ browsable(
 # cd ~/Desktop/files/hepatite/dash/dash
 # git init
 # git add .
-# git commit -m "sev dashboard"
+# git commit -m "e dashboard"
 # git push -u origin main
 
 
