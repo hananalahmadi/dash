@@ -306,7 +306,7 @@ browsable(
 # cd ~/Desktop/files/hepatite/dash/dash
 # git init
 # git add .
-# git commit -m "four dashboard"
+# git commit -m "sev dashboard"
 # git push -u origin main
 
 
