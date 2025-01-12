@@ -39,6 +39,7 @@ library(gridExtra)
 library(rnaturalearth)
 library(tidyr)
 library(htmltools)
+library(plotly)
 
 
 
@@ -267,6 +268,9 @@ d$RR <- res$summary.fitted.values[, "mean"]
 d$LL <- res$summary.fitted.values[, "0.025quant"]
 d$UL <- res$summary.fitted.values[, "0.975quant"]
 
+
+
+
 map_sf <- merge(
   map_sf, d,
   by.x = c("name", "year"),
@@ -322,26 +326,41 @@ leaflet_map_rr <- leaflet_map_rr %>%
     opacity = 1
   )
 
-leaflet_map_rr
+#leaflet_map_rr
 # Plot the leaflet map for RR
 
 
 
 
+# Your original ggplot
+p <- ggplot(d, aes(x = year, y = RR, color = "gray")) +  
+  geom_line(size = 1) +
+  geom_point(size = 2, color = "gray") +  
+  geom_ribbon(aes(ymin = LL, ymax = UL), alpha = 0.2, fill = "gray", color = NA) +  
+  labs(title = "", x = "Year", y = "") +
+  theme_minimal() +
+  theme(legend.position = "none") +  
+  scale_x_continuous(breaks = 2019:2022) +
+  facet_wrap(~ region, scales = "free_y")
 
-# browsable(
-#   tagList(
-#     div(
-#       style = "display: inline-block; width: 48%; margin-right: 3%;", 
-#       leaflet_map
-#     ),
-#     div(
-#       style = "display: inline-block; width: 48%;", 
-#       leaflet_map_rr
-#     )
-#   )
-# )
+# Convert to interactive plot
+interactive_plot <- ggplotly(p)
 
+# Display the interactive plot
+#interactive_plot
+
+browsable(
+  tagList(
+    div(
+      style = "display: inline-block; width: 48%; margin-right: 3%;",
+      interactive_plot
+    ),
+    div(
+      style = "display: inline-block; width: 48%;",
+      leaflet_map_rr
+    )
+  )
+)
 
 
 ```

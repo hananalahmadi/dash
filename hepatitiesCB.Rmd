@@ -289,14 +289,16 @@ leaflet_sbr <- leaflet(map) %>%
 
 
 
+
+
 browsable(
   tagList(
     div(
-      style = "display: inline-block; width: 48%; margin-right: 3%;", 
+      style = "display: inline-block; width: 48%; margin-right: 3%;",
       leaflet_scr
     ),
     div(
-      style = "display: inline-block; width: 48%;", 
+      style = "display: inline-block; width: 48%;",
       leaflet_sbr
     )
   )
@@ -306,7 +308,7 @@ browsable(
 # cd ~/Desktop/files/hepatite/dash/dash
 # git init
 # git add .
-# git commit -m "n dashboard"
+# git commit -m "t dashboard"
 # git push -u origin main
 
 

@@ -1,13 +1,13 @@
 ---
 title: "Hepatitis C and Hepatitis B in Saudi Arabia"
 ---
-<br><br>
+
 Hepatitis is a disease characterized by liver inflammation caused by various infectious viruses and noninfectious agents, leading to a spectrum of health complications, some of which may result in severe or life-threatening outcomes. The hepatitis virus is classified into five main types: A, B, C, D, and E. Each type causes liver disease but differs in transmission methods, severity, geographical prevalence, and prevention strategies. Notably, hepatitis B virus (HBV) and hepatitis C virus (HCV) are responsible for chronic infections in hundreds of millions of individuals worldwide and are the leading causes of liver cirrhosis, liver cancer, and deaths related to viral hepatitis. Globally, an estimated 354 million people live with hepatitis B or C, with testing and treatment often out of reach for many.
 
 In the Kingdom of Saudi Arabia, hepatitis poses a significant public health concern. The Kingdom of Saudia Arabia is divided into 13 governing provinces, encompassing over 5,000 villages and cities. Given the vast geographic expanse, it is evident that spatial variation in disease prevalence can differ significantly across the country, as the large area contributes to diverse environmental and socio-demographic conditions.
 
 As a significant public health concern, understanding and modeling the geographic and temporal patterns of hepatitis in Saudi Arabia is critical for informing effective prevention and control strategies. The hepatitis atlas shows the relative risks of hepatitis C and hepatitis B in Saudi Arabia obtained using spatial and spatio-temporal models. The hepatitis atlas allows us to understand the geographical and temporal variation of hepatitis and provides a valuable tool for decision-making.
-<br><br>
+
 ```{r, echo=FALSE, warning=FALSE, message=FALSE, comment=NA, fig.height=4, fig.width=9.5}
 
 
@@ -17,6 +17,7 @@ library(rnaturalearth)
 library(sf)
 library(leaflet)
 library(dplyr)
+library(htmltools)
 
 
 # Get the map of Saudi Arabia
@@ -52,8 +53,15 @@ l <- leaflet(map) %>% addTiles()
 
 pal <- colorNumeric(palette = "viridis", domain = map$pop)
 
-l %>% addPolygons(color = "grey", weight = 1, fillColor = ~pal(pop), fillOpacity = 0.5) %>%
+l <- l %>% addPolygons(color = "grey", weight = 1, fillColor = ~pal(pop), fillOpacity = 0.5) %>%
   addLegend(pal = pal, values = ~pop, opacity = 0.5, title = "population", position = "bottomright")
+
+browsable(
+  div(
+    style = "width: 100%; margin: 0 auto;",  # Width plus center alignment
+    l
+  )
+)
 
 ```
 
