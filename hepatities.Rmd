@@ -7,7 +7,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-The relative risk maps show a clear decrease in risk, as the maps transition from yellow shades, indicating a high relative risk, to darker purple shades, representing a low relative risk. Notably, the Makkah region, located in the western part of the
+The relative risk maps show a clear decrease in risk, as the maps transition from red shades, indicating a high relative risk, to darker purple shades, representing a low relative risk. Notably, the Makkah region, located in the western part of the
 map, consistently shows the highest risk of hepatitis C across the years. In contrast, the
 regions in the northern part of the map demonstrates the lowest risk during the same
 time frame. 
@@ -18,28 +18,28 @@ time frame.
 setwd("~/Desktop/files/hepatite/dash/dash")
 
 
-library(sf)
-library(sp)
-library(raster)
-library(readxl)
-library(mapview)
-library(dplyr)
-library(ggplot2)
-library(patchwork)
-library(viridis)
-library(openair)
-library(terra)
-library(leaflet)
-library(tigris)
-library(pander)
-library(spdep)
-library(INLA)
-library(gridExtra)
-#library(rgeoboundaries)
+
+
 library(rnaturalearth)
+library(sf)
+library(leaflet)
+library(dplyr)
+library(INLA)
+library(ggplot2)
+library(plotly)
 library(tidyr)
 library(htmltools)
-library(plotly)
+library(SpatialEpi)
+library(spdep)
+
+
+
+
+
+
+
+
+
 
 
 
@@ -79,7 +79,7 @@ map$name[13]="Tabuk"
 
 
 
-# # # Sum population in regions of map
+# Sum population in regions of map
 
 
 
@@ -137,7 +137,7 @@ data <- merge(data, population_data_long[, c("regions", "year", "population")], 
 # Expected value 
 ###########################
 
-library(SpatialEpi)
+
 n.strata <- 1
 E <- expected(
   population = data$population,
@@ -239,8 +239,7 @@ for (year in names(map_layers)) {
 
 
 
-library(INLA)
-library(spdep)
+
 nb <- poly2nb(map)
 nb2INLA("map.adj", nb)
 g <- inla.read.graph(filename = "map.adj")
@@ -270,17 +269,78 @@ d$UL <- res$summary.fitted.values[, "0.975quant"]
 
 
 
-
+# Merge the data
 map_sf <- merge(
   map_sf, d,
   by.x = c("name", "year"),
   by.y = c("region", "year")
 )
 
+# 
+# # Create a custom color palette for RR
+# pal_rr_custom <- colorNumeric(
+#   palette = c("blue", "white", "red"), # Blue for RR < 1, white for RR = 1, red for RR > 1
+#   domain = c(min(map_sf$RR, na.rm = TRUE), max(map_sf$RR, na.rm = TRUE)),
+#   na.color = "transparent"
+# )
+# 
+# # Initialize the leaflet map for RR
+# leaflet_map_rr <- leaflet() %>%
+#   addTiles() %>%
+#   setView(lng = 45, lat = 23.5, zoom = 4) # Center on Saudi Arabia
+# 
+# # Split data by year for creating individual layers
+# map_layers_rr <- split(map_sf, map_sf$year)
+# 
+# # Add yearly RR polygons to the map
+# for (year in names(map_layers_rr)) {
+#   year_data <- map_layers_rr[[year]]
+#   
+#   leaflet_map_rr <- leaflet_map_rr %>%
+#     addPolygons(
+#       data = year_data,
+#       fillColor = ~pal_rr_custom(RR),
+#       color = "gray",
+#       weight = 1,
+#       opacity = 1,
+#       fillOpacity = 0.7,
+#       popup = ~paste0(
+#         "<b>Region:</b> ", name, "<br>",
+#         "<b>Year:</b> ", year, "<br>",
+#         "<b>RR:</b> ", round(RR, 2)
+#       ),
+#       group = paste0("RR - ", year)
+#     )
+# }
+# 
+# # Add layers control for selecting one year at a time (baseGroups)
+# leaflet_map_rr <- leaflet_map_rr %>%
+#   addLayersControl(
+#     baseGroups = paste0("RR - ", names(map_layers_rr)),
+#     options = layersControlOptions(collapsed = FALSE)
+#   ) %>%
+#   addLegend(
+#     position = "bottomright",
+#     pal = pal_rr_custom,
+#     values = map_sf$RR,
+#     title = "RR",
+#     opacity = 1
+#   )
+# 
+# 
 
-
-# Create a color palette for RR
-pal_rr <- colorNumeric(palette = "viridis", domain = map_sf$RR, na.color = "transparent")
+# Define custom color palette function for RR
+custom_palette <- function(value) {
+  if (is.na(value)) {
+    return("transparent")
+  } else if (value == 1) {
+    return("white")
+  } else if (value > 1) {
+    return("red")
+  } else {
+    return("blue")
+  }
+}
 
 # Initialize the leaflet map for RR
 leaflet_map_rr <- leaflet() %>%
@@ -290,14 +350,14 @@ leaflet_map_rr <- leaflet() %>%
 # Split data by year for creating individual layers
 map_layers_rr <- split(map_sf, map_sf$year)
 
-# Add yearly RR polygons to the map
+# Add yearly RR polygons to the map with custom colors
 for (year in names(map_layers_rr)) {
   year_data <- map_layers_rr[[year]]
   
   leaflet_map_rr <- leaflet_map_rr %>%
     addPolygons(
       data = year_data,
-      fillColor = ~pal_rr(RR),
+      fillColor = ~sapply(RR, custom_palette), # Apply custom palette for RR
       color = "gray",
       weight = 1,
       opacity = 1,
@@ -311,22 +371,24 @@ for (year in names(map_layers_rr)) {
     )
 }
 
-# Add layers control for toggling years, with only the first year checked by default
+# Add layers control for selecting one year at a time (baseGroups)
 leaflet_map_rr <- leaflet_map_rr %>%
   addLayersControl(
-    overlayGroups = paste0("RR - ", names(map_layers_rr)),
-    options = layersControlOptions(collapsed = FALSE, autoZIndex = FALSE)
+    baseGroups = paste0("RR - ", names(map_layers_rr)),
+    options = layersControlOptions(collapsed = FALSE)
   ) %>%
-  hideGroup(paste0("RR - ", names(map_layers_rr)[-1])) %>%
   addLegend(
     position = "bottomright",
-    pal = pal_rr,
-    values = map_sf$RR,
+    colors = c("blue", "white", "red"), # Legend colors
+    labels = c("RR < 1", "RR = 1", "RR > 1"), # Legend labels
     title = "RR",
     opacity = 1
   )
 
-#leaflet_map_rr
+# Display the map
+
+
+
 # Plot the leaflet map for RR
 
 
@@ -353,11 +415,11 @@ browsable(
   tagList(
     div(
       style = "display: inline-block; width: 48%; margin-right: 3%;",
-      interactive_plot
+      leaflet_map_rr
     ),
     div(
       style = "display: inline-block; width: 48%;",
-      leaflet_map_rr
+      interactive_plot
     )
   )
 )

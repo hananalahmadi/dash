@@ -7,3 +7,17 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 The hepatitis dashboard was developed by Ms. Hanan Alhamadi under the supervision of Prof. Paula Moraga in the GeoHealth research group at King Abdullah University of Science and Technology (KAUST).
+
+<br><br>
+
+### Paula Moraga 
+
+
+Prof. Paula Moraga is an Assistant Professor of Statistics at King Abdullah University of Science and Technology (KAUST) and the Principal Investigator of the Geospatial Statistics and Health Surveillance (GeoHealth) research group. Prior to joining KAUST, Prof. Moraga held academic positions in statistics at esteemed institutions, including Lancaster University, Harvard School of Public Health, London School of Hygiene & Tropical Medicine, Queensland University of Technology, and the University of Bath. She earned her Ph.D. in Mathematics from the University of Valencia and a Master’s in Biostatistics from Harvard University.
+
+
+<br><br>
+
+### Hanan Alahmadi
+
+Ms. Hanan Alahmadi is a Lecturer of Statistics and Operations Research at King Saud University and a Ph.D. candidate at King Abdullah University of Science and Technology (KAUST). She earned her master’s degree from KAUST under the supervision of Prof. Haavard Rue

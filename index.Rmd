@@ -2,66 +2,95 @@
 title: "Hepatitis C and Hepatitis B in Saudi Arabia"
 ---
 
+### Definition
 Hepatitis is a disease characterized by liver inflammation caused by various infectious viruses and noninfectious agents, leading to a spectrum of health complications, some of which may result in severe or life-threatening outcomes. The hepatitis virus is classified into five main types: A, B, C, D, and E. Each type causes liver disease but differs in transmission methods, severity, geographical prevalence, and prevention strategies. Notably, hepatitis B virus (HBV) and hepatitis C virus (HCV) are responsible for chronic infections in hundreds of millions of individuals worldwide and are the leading causes of liver cirrhosis, liver cancer, and deaths related to viral hepatitis. Globally, an estimated 354 million people live with hepatitis B or C, with testing and treatment often out of reach for many.
 
+### Hepatitis in Saudi Arabia
 In the Kingdom of Saudi Arabia, hepatitis poses a significant public health concern. The Kingdom of Saudia Arabia is divided into 13 governing provinces, encompassing over 5,000 villages and cities. Given the vast geographic expanse, it is evident that spatial variation in disease prevalence can differ significantly across the country, as the large area contributes to diverse environmental and socio-demographic conditions.
 
+### Disease mapping model 
 As a significant public health concern, understanding and modeling the geographic and temporal patterns of hepatitis in Saudi Arabia is critical for informing effective prevention and control strategies. The hepatitis atlas shows the relative risks of hepatitis C and hepatitis B in Saudi Arabia obtained using spatial and spatio-temporal models. The hepatitis atlas allows us to understand the geographical and temporal variation of hepatitis and provides a valuable tool for decision-making.
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, comment=NA, fig.height=4, fig.width=9.5}
-
+```{r, echo=FALSE, warning=FALSE, message=FALSE, comment=NA, fig.height=3.7, fig.width=9.5}
 
 setwd("~/Desktop/files/hepatite/dash/dash")
-
 library(rnaturalearth)
 library(sf)
 library(leaflet)
 library(dplyr)
 library(htmltools)
-
+library(readxl)
 
 # Get the map of Saudi Arabia
 map <- ne_states(country = "Saudi Arabia", returnclass = "sf")
 map <- st_set_crs(map, 4326)
 
 # Adjust region names to match population data
-map$name[1] = "Asir"
-map$name[2] = "Al Bahah"
-map$name[3] = "Northern Borders"
-map$name[4] = "Al Jawf"
-map$name[5] = "Madinah"
-map$name[6] = "Qassim"
-map$name[7] = "Riyadh"
-map$name[8] = "Eastern Province"
-map$name[9] = "Hail"
-map$name[10] = "Jazan"
-map$name[11] = "Makkah"
-map$name[12] = "Najran"
-map$name[13] = "Tabuk"
+map$name[1] = "Eastern Province"
+map$name[2] = "Northern Borders"
+map$name[3] = "Al Jawf"
+map$name[4] = "Jazan"
+map$name[5] = "Asir"
+map$name[6] = "Jazan"
+map$name[7] = "Tabuk"
+map$name[8] = "Madinah"
+map$name[9] = "Makkah"
+map$name[10] = "Riyadh"
+map$name[11] = "Qassim"
+map$name[12] = "Hail"
+map$name[13] = "Al Bahah"
 
-# Population data for Saudi Arabia's regions
+
 regions <- data.frame(
-  regions = c("Asir", "Al Bahah", "Northern Borders", "Al Jawf", "Madinah", "Qassim", "Riyadh", 
+  regions = c("Asir", "Al Bahah", "Northern Borders", "Al Jawf", "Madinah", "Qassim", "Riyadh",
               "Eastern Province", "Hail", "Jazan", "Makkah", "Najran", "Tabuk"),
-  pop = c(1876328, 319257, 346525, 557379, 2004830, 1260269, 7979262, 4740235, 688236, 1315117, 7607556, 548237, 820568)
+  pop = c(1876328, 319257, 346525, 557379, 2004830, 1260269, 7979262, 4740235, 688236, 1315117, 7607556, 548237, 820568) / 1000000
 )
 
-# Merge population data with the map
-map <- left_join(map, regions, by = c("name" = "regions"))
+# Merge population data with the map using merge() instead of left_join()
+map <- merge(map, regions, by.x = "name", by.y = "regions")
 
+
+
+# Create HTML labels for the map
+labels <- sprintf(
+  "<strong>%s</strong><br/>Population: %sM",
+  map$name, round(map$pop, 2)
+) %>% lapply(htmltools::HTML)
+
+# Create Leaflet map
 l <- leaflet(map) %>% addTiles()
-
 pal <- colorNumeric(palette = "viridis", domain = map$pop)
 
-l <- l %>% addPolygons(color = "grey", weight = 1, fillColor = ~pal(pop), fillOpacity = 0.5) %>%
-  addLegend(pal = pal, values = ~pop, opacity = 0.5, title = "population", position = "bottomright")
+l <- l %>% 
+  addPolygons(
+    color = "grey", 
+    weight = 1, 
+    fillColor = ~pal(pop), 
+    fillOpacity = 0.5,
+    highlightOptions = highlightOptions(weight = 4), # Highlight on hover
+    label = labels, # Add HTML labels
+    labelOptions = labelOptions(
+      style = list("font-weight" = "normal", padding = "3px 8px"),
+      textsize = "15px",
+      direction = "auto"
+    )
+  ) %>%
+  addLegend(
+    pal = pal, 
+    values = ~pop, 
+    opacity = 0.5, 
+    title = "Population",
+    position = "bottomright"
+  )
 
 browsable(
   div(
-    style = "width: 100%; margin: 0 auto;",  # Width plus center alignment
+    style = "width: 100%; margin: 0 auto;",
     l
   )
 )
+
 
 ```
 

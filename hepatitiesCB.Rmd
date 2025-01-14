@@ -17,28 +17,18 @@ In 2019, we estimated the relative risk of hepatitis C and hepatitis B across va
 
 # The map below illustrates the standardized incidence ratios (SIR) for hepatitis C and hepatitis B in Saudi Arabia in 2019. The spatial patterns for many regions appear to be highly similar, which may be attributed to the shared risk factors for both diseases
 
-library(sf)
-library(SpatialEpi)
-library(sp)
-library(raster)
-library(readxl)
-library(mapview)
-library(dplyr)
-library(ggplot2)
-library(patchwork)
-library(viridis)
-library(openair)
-library(terra)
-library(leaflet)
-library(tigris)
-library(pander)
-library(spdep)
-library(INLA)
-library(gridExtra)
-#library(rgeoboundaries)
 library(rnaturalearth)
+library(sf)
+library(leaflet)
+library(dplyr)
+library(INLA)
+library(ggplot2)
+library(plotly)
+library(tidyr)
 library(htmltools)
 
+library(SpatialEpi)
+library(spdep)
 #######################
 # map of Saudi Arabia
 #######################
@@ -239,58 +229,46 @@ map$RRB <- r$summary.fitted.values[c(14:26), "mean"] / map$E.b
 
 
 # Calculate the common range for the color scales
-common_range <- range(c(map$RRC, map$RRB))
-
-# # Plot for RRC
-# C <- ggplot(data = boundaryregion.c) + 
-#   geom_sf() +
-#   geom_sf(data = map, aes(fill = RRC)) +
-#   scale_fill_viridis_c(option = "viridis", name = "RR", limits = common_range) +  # Use common range
-#   theme(plot.title = element_text(hjust = 0.5, size = 16))  # Center and enlarge the title
-# 
-# # Plot for RRB
-# B <- ggplot(data = boundaryregion.c) + 
-#   geom_sf() +
-#   geom_sf(data = map, aes(fill = RRB)) +
-#   scale_fill_viridis_c(option = "viridis", name = "RR", limits = common_range) +  # Use common range
-#   theme(plot.title = element_text(hjust = 0.5, size = 16))  # Center and enlarge the title
-# 
-# # Plot both
-# C + B
-
-
-
-# Create a common color palette for both datasets based on the common limits
-palette <- colorNumeric(palette = "viridis", domain = common_range, na.color = "transparent")
+# Define custom palette functions for RRC and RRB
+custom_palette <- function(value) {
+  if (is.na(value)) {
+    return("transparent")
+  } else if (value == 1) {
+    return("white")
+  } else if (value > 1) {
+    return("red")
+  } else {
+    return("blue")
+  }
+}
 
 # Create the leaflet map for SIR.c
 leaflet_scr <- leaflet(map) %>%
   addTiles() %>%
   addPolygons(data = map, 
-              fillColor = ~palette(RRC), 
+              fillColor = ~sapply(RRC, custom_palette), 
               fillOpacity = 0.7, 
               color = "gray", 
               weight = 1,
               label = ~paste0("RR (C): ", RRC)) %>%
-  addLegend(pal = palette, values = ~RRC, title = "RR (C)")
+  addLegend(colors = c("blue", "white", "red"), 
+            labels = c("RR < 1", "RR = 1", "RR > 1"), 
+            title = "RR (C)")
 
 # Create the leaflet map for SIR.b
 leaflet_sbr <- leaflet(map) %>%
   addTiles() %>%
   addPolygons(data = map, 
-              fillColor = ~palette(RRB), 
+              fillColor = ~sapply(RRB, custom_palette), 
               fillOpacity = 0.7, 
               color = "gray", 
               weight = 1,
               label = ~paste0("RR (B): ", RRB)) %>%
-  addLegend(pal = palette, values = ~RRB, title = "RR (B)")
+  addLegend(colors = c("blue", "white", "red"), 
+            labels = c("RR < 1", "RR = 1", "RR > 1"), 
+            title = "RR (B)")
 
-# Display the maps
-
-
-
-
-
+# Combine the two maps side by side
 browsable(
   tagList(
     div(
@@ -305,11 +283,7 @@ browsable(
 )
 
 
-# cd ~/Desktop/files/hepatite/dash/dash
-# git init
-# git add .
-# git commit -m "t dashboard"
-# git push -u origin main
+
 
 
 ```
