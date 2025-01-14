@@ -50,11 +50,9 @@ regions <- data.frame(
 # Merge population data with the map using merge() instead of left_join()
 map <- merge(map, regions, by.x = "name", by.y = "regions")
 
-
-
 # Create HTML labels for the map
 labels <- sprintf(
-  "<strong>%s</strong><br/>Population: %sM",
+  "<strong>%s</strong><br/>Population: %s millions",
   map$name, round(map$pop, 2)
 ) %>% lapply(htmltools::HTML)
 
@@ -80,7 +78,7 @@ l <- l %>%
     pal = pal, 
     values = ~pop, 
     opacity = 0.5, 
-    title = "Population",
+    title = "Population (in millions)", # Updated title with units
     position = "bottomright"
   )
 

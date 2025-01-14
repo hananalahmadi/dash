@@ -227,46 +227,55 @@ map$RRB <- r$summary.fitted.values[c(14:26), "mean"] / map$E.b
 
 
 
-
 # Calculate the common range for the color scales
-# Define custom palette functions for RRC and RRB
-custom_palette <- function(value) {
-  if (is.na(value)) {
-    return("transparent")
-  } else if (value == 1) {
-    return("white")
-  } else if (value > 1) {
-    return("red")
-  } else {
-    return("blue")
-  }
-}
+common_range <- range(c(map$RRC, map$RRB), na.rm = TRUE)
+
+# Define continuous color palette
+common_palette <- colorNumeric(
+  palette = c("blue", "white", "red"), # Gradient: blue for <1, white for =1, red for >1
+  domain = common_range, # Shared range for both RRC and RRB
+  na.color = "transparent" # Handle NA values
+)
 
 # Create the leaflet map for SIR.c
 leaflet_scr <- leaflet(map) %>%
   addTiles() %>%
-  addPolygons(data = map, 
-              fillColor = ~sapply(RRC, custom_palette), 
-              fillOpacity = 0.7, 
-              color = "gray", 
-              weight = 1,
-              label = ~paste0("RR (C): ", RRC)) %>%
-  addLegend(colors = c("blue", "white", "red"), 
-            labels = c("RR < 1", "RR = 1", "RR > 1"), 
-            title = "RR (C)")
+  addPolygons(
+    data = map, 
+    fillColor = ~common_palette(RRC), # Use the shared color palette
+    fillOpacity = 0.7, 
+    color = "gray", 
+    weight = 1,
+    label = ~paste0("RR (C): ", round(RRC, 2))
+  ) %>%
+  addLegend(
+    pal = common_palette, 
+    values = map$RRC, # Use RRC values for the legend
+    title = "RR (C)", 
+    position = "bottomright",
+    opacity = 1,
+    labFormat = labelFormat(digits = 2) # Format labels
+  )
 
 # Create the leaflet map for SIR.b
 leaflet_sbr <- leaflet(map) %>%
   addTiles() %>%
-  addPolygons(data = map, 
-              fillColor = ~sapply(RRB, custom_palette), 
-              fillOpacity = 0.7, 
-              color = "gray", 
-              weight = 1,
-              label = ~paste0("RR (B): ", RRB)) %>%
-  addLegend(colors = c("blue", "white", "red"), 
-            labels = c("RR < 1", "RR = 1", "RR > 1"), 
-            title = "RR (B)")
+  addPolygons(
+    data = map, 
+    fillColor = ~common_palette(RRB), # Use the shared color palette
+    fillOpacity = 0.7, 
+    color = "gray", 
+    weight = 1,
+    label = ~paste0("RR (B): ", round(RRB, 2))
+  ) %>%
+  addLegend(
+    pal = common_palette, 
+    values = map$RRB, # Use RRB values for the legend
+    title = "RR (B)", 
+    position = "bottomright",
+    opacity = 1,
+    labFormat = labelFormat(digits = 2) # Format labels
+  )
 
 # Combine the two maps side by side
 browsable(
@@ -283,6 +292,11 @@ browsable(
 )
 
 
+# cd /Users/alahmahh/Desktop/files/hepatite/dash/dash
+# git init
+# git add .
+# git commit -m "last"
+# git push -u origin main
 
 
 

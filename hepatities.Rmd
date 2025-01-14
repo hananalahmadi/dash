@@ -329,18 +329,12 @@ map_sf <- merge(
 # 
 # 
 
-# Define custom color palette function for RR
-custom_palette <- function(value) {
-  if (is.na(value)) {
-    return("transparent")
-  } else if (value == 1) {
-    return("white")
-  } else if (value > 1) {
-    return("red")
-  } else {
-    return("blue")
-  }
-}
+# Define a continuous color palette for RR
+pal_rr <- colorNumeric(
+  palette = c("blue", "white", "red"), # Gradient from blue to white to red
+  domain = map_sf$RR, # Ensure the domain is explicitly set to the RR values in the dataset
+  na.color = "transparent" # Transparent for NA values
+)
 
 # Initialize the leaflet map for RR
 leaflet_map_rr <- leaflet() %>%
@@ -350,14 +344,14 @@ leaflet_map_rr <- leaflet() %>%
 # Split data by year for creating individual layers
 map_layers_rr <- split(map_sf, map_sf$year)
 
-# Add yearly RR polygons to the map with custom colors
+# Add yearly RR polygons to the map with continuous colors
 for (year in names(map_layers_rr)) {
   year_data <- map_layers_rr[[year]]
   
   leaflet_map_rr <- leaflet_map_rr %>%
     addPolygons(
       data = year_data,
-      fillColor = ~sapply(RR, custom_palette), # Apply custom palette for RR
+      fillColor = ~pal_rr(RR), # Apply continuous palette for RR
       color = "gray",
       weight = 1,
       opacity = 1,
@@ -379,10 +373,11 @@ leaflet_map_rr <- leaflet_map_rr %>%
   ) %>%
   addLegend(
     position = "bottomright",
-    colors = c("blue", "white", "red"), # Legend colors
-    labels = c("RR < 1", "RR = 1", "RR > 1"), # Legend labels
+    pal = pal_rr, # Use the continuous palette
+    values = map_sf$RR, # Explicitly pass the RR values to the legend
     title = "RR",
-    opacity = 1
+    opacity = 1,
+    labFormat = labelFormat(digits = 2) # Format labels with two decimal places
   )
 
 # Display the map
