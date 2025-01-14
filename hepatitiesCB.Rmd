@@ -225,8 +225,6 @@ map$RRB <- r$summary.fitted.values[c(14:26), "mean"] / map$E.b
 
 
 
-
-
 # Calculate the common range for the color scales
 common_range <- range(c(map$RRC, map$RRB), na.rm = TRUE)
 
@@ -237,6 +235,18 @@ common_palette <- colorNumeric(
   na.color = "transparent" # Handle NA values
 )
 
+# Create HTML labels for RRC
+labels_rrc <- sprintf(
+  "<strong>Region:</strong> %s<br/><strong>RR (C):</strong> %.2f",
+  map$name, map$RRC
+) %>% lapply(htmltools::HTML)
+
+# Create HTML labels for RRB
+labels_rrb <- sprintf(
+  "<strong>Region:</strong> %s<br/><strong>RR (B):</strong> %.2f",
+  map$name, map$RRB
+) %>% lapply(htmltools::HTML)
+
 # Create the leaflet map for SIR.c
 leaflet_scr <- leaflet(map) %>%
   addTiles() %>%
@@ -246,7 +256,12 @@ leaflet_scr <- leaflet(map) %>%
     fillOpacity = 0.7, 
     color = "gray", 
     weight = 1,
-    label = ~paste0("RR (C): ", round(RRC, 2))
+    label = labels_rrc, # Add region and RR (C) to the label
+    labelOptions = labelOptions(
+      style = list("font-weight" = "normal", padding = "3px 6px"),
+      textsize = "12px",
+      direction = "auto"
+    )
   ) %>%
   addLegend(
     pal = common_palette, 
@@ -266,7 +281,12 @@ leaflet_sbr <- leaflet(map) %>%
     fillOpacity = 0.7, 
     color = "gray", 
     weight = 1,
-    label = ~paste0("RR (B): ", round(RRB, 2))
+    label = labels_rrb, # Add region and RR (B) to the label
+    labelOptions = labelOptions(
+      style = list("font-weight" = "normal", padding = "3px 6px"),
+      textsize = "12px",
+      direction = "auto"
+    )
   ) %>%
   addLegend(
     pal = common_palette, 
@@ -295,7 +315,7 @@ browsable(
 # cd /Users/alahmahh/Desktop/files/hepatite/dash/dash
 # git init
 # git add .
-# git commit -m "last"
+# git commit -m "last2"
 # git push -u origin main
 
 

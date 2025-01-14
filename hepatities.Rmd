@@ -330,6 +330,7 @@ map_sf <- merge(
 # 
 
 # Define a continuous color palette for RR
+# Define a continuous color palette for RR
 pal_rr <- colorNumeric(
   palette = c("blue", "white", "red"), # Gradient from blue to white to red
   domain = map_sf$RR, # Ensure the domain is explicitly set to the RR values in the dataset
@@ -348,6 +349,14 @@ map_layers_rr <- split(map_sf, map_sf$year)
 for (year in names(map_layers_rr)) {
   year_data <- map_layers_rr[[year]]
   
+  # Create HTML labels for the map
+  # Create HTML labels for the map without the year
+labels <- sprintf(
+  "<strong>Region:</strong> %s<br/><strong>RR:</strong> %.2f",
+  year_data$name, year_data$RR
+) %>% lapply(htmltools::HTML)
+
+  
   leaflet_map_rr <- leaflet_map_rr %>%
     addPolygons(
       data = year_data,
@@ -356,10 +365,12 @@ for (year in names(map_layers_rr)) {
       weight = 1,
       opacity = 1,
       fillOpacity = 0.7,
-      popup = ~paste0(
-        "<b>Region:</b> ", name, "<br>",
-        "<b>Year:</b> ", year, "<br>",
-        "<b>RR:</b> ", round(RR, 2)
+      highlightOptions = highlightOptions(weight = 4), # Highlight on hover
+      label = labels, # Add HTML labels
+      labelOptions = labelOptions(
+        style = list("font-weight" = "normal", padding = "3px 6px"),
+        textsize = "12px", # Reduced text size
+        direction = "auto"
       ),
       group = paste0("RR - ", year)
     )
@@ -379,12 +390,6 @@ leaflet_map_rr <- leaflet_map_rr %>%
     opacity = 1,
     labFormat = labelFormat(digits = 2) # Format labels with two decimal places
   )
-
-# Display the map
-
-
-
-# Plot the leaflet map for RR
 
 
 
